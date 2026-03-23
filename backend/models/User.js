@@ -20,6 +20,10 @@ const UserSchema = new Schema({
   reviewsCount: { type: Number, default: 0 },
   verified: { type: Boolean, default: true },
   reputationScore: { type: Number, default: 0 },
+  busySlots: [{
+    date: { type: String },
+    time: { type: String }
+  }],
 
   createdAt: { type: Date, default: Date.now }
 });

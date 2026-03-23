@@ -62,6 +62,7 @@ router.put('/profile', auth, async (req, res) => {
     if (skills) profileFields.skills = skills;
     if (hourlyRate !== undefined) profileFields.hourlyRate = hourlyRate;
     if (isAvailable !== undefined) profileFields.isAvailable = isAvailable;
+    if (req.body.busySlots) profileFields.busySlots = req.body.busySlots;
 
     const user = await User.findByIdAndUpdate(
       req.user.userId,

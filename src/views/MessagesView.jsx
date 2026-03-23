@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Phone, Video, MoreVertical, Briefcase, Paperclip, FileText, Loader2 } from 'lucide-react';
+import { Send, Phone, Video, MoreVertical, Briefcase, Paperclip, FileText, Loader2, CheckCircle2, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 export default function MessagesView() {
   const [activeChat, setActiveChat] = useState(null);
@@ -11,12 +12,72 @@ export default function MessagesView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   
+  // Hire Form State
+  const [showHireForm, setShowHireForm] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [jobDuration, setJobDuration] = useState('1 Day');
+
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('userProfile')) || {};
   const myId = user.id;
+
+  const handleHireSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://localhost:5000/api/jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          workerId: activeChat,
+          description: jobDescription,
+          duration: jobDuration
+        })
+      });
+      if (res.ok) {
+        alert('Job request sent successfully!');
+        setShowHireForm(false);
+        setJobDescription('');
+      } else {
+        alert('Failed to send request. You may need to log in as a Customer.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const location = useLocation();
+
+  // Pre-select via Link State
+  useEffect(() => {
+    if (location.state?.preselectWorker) {
+      const w = location.state.preselectWorker;
+      const targetId = w._id || w.id;
+      setActiveChat(targetId);
+      
+      setContacts(prev => {
+        if (!prev.find(c => c._id === targetId)) {
+           return [{
+             _id: targetId,
+             name: w.name,
+             avatar: w.avatar,
+             role: w.role || 'worker',
+             title: w.title,
+             isAvailable: w.isAvailable,
+             latestMessageDate: new Date(),
+             unreadCount: 0
+           }, ...prev];
+        }
+        return prev;
+      });
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // 1 & 2. Fetch Contacts and Messages Polling
   useEffect(() => {
@@ -232,7 +293,11 @@ export default function MessagesView() {
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
               {currentContact.role === 'worker' && user.role === 'customer' && (
-                <button className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+                <button 
+                  onClick={() => setShowHireForm(true)}
+                  className="btn-primary" 
+                  style={{ padding: '8px 16px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
                   <Briefcase size={16} /> Hire Now
                 </button>
               )}
@@ -317,6 +382,54 @@ export default function MessagesView() {
           Select a contact from your network to start chatting
         </div>
       )}
+
+      {/* Hire Modal inside Messages */}
+      {showHireForm && currentContact && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', padding: '32px', borderRadius: '24px', position: 'relative', animation: 'fadeIn 0.3s ease' }}>
+            <button onClick={() => setShowHireForm(false)} style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            
+            <h2 className="heading-gradient" style={{ fontSize: '1.8rem', marginBottom: '8px' }}>Hire {currentContact.name.split(' ')[0]}</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Describe your requirement to get an estimate.</p>
+            
+            <form onSubmit={handleHireSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>Job Description</label>
+                <textarea 
+                  required
+                  className="input-field" 
+                  placeholder="E.g. I need my kitchen sink pipe replaced..." 
+                  style={{ height: '120px', resize: 'none' }}
+                  value={jobDescription}
+                  onChange={e => setJobDescription(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>Estimated Duration</label>
+                <select 
+                  className="input-field"
+                  value={jobDuration}
+                  onChange={e => setJobDuration(e.target.value)}
+                  style={{ appearance: 'none', width: '100%', background: 'var(--bg-glass)' }}
+                >
+                  <option value="Few Hours">A Few Hours</option>
+                  <option value="1 Day">1 Full Day</option>
+                  <option value="2-3 Days">2-3 Days</option>
+                  <option value="1 Week+">1 Week or More</option>
+                </select>
+              </div>
+              
+              <button type="submit" className="btn-primary" style={{ padding: '16px', fontSize: '1.1rem', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <CheckCircle2 size={20} /> Send Request
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

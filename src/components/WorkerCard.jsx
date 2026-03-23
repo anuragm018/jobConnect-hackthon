@@ -13,7 +13,7 @@ export default function WorkerCard({ worker }) {
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '24px', cursor: 'pointer', transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', gap: '16px' }}
+    <div className="glass-panel" onClick={() => navigate(`/app/explore/${worker.id || worker._id}`)} style={{ padding: '24px', cursor: 'pointer', transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', gap: '16px' }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.borderColor = 'var(--accent-primary)';
@@ -70,13 +70,13 @@ export default function WorkerCard({ worker }) {
         )}
       </div>
 
-      <div style={{ marginTop: '8px' }}>
+      <div style={{ marginTop: '8px', zIndex: 10 }}>
         <button 
-          onClick={(e) => { e.stopPropagation(); navigate('/app/messages'); }} 
+          onClick={(e) => { e.stopPropagation(); navigate('/app/messages', { state: { preselectWorker: worker } }); }} 
           className="btn-primary" 
           style={{ width: '100%', padding: '10px 0', fontSize: '0.95rem' }}
         >
-          <MessageSquare size={16} /> Message {worker.name.split(' ')[0]}
+          <MessageSquare size={16} /> Live Chat
         </button>
       </div>
     </div>

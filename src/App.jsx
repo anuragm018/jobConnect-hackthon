@@ -30,6 +30,7 @@ function App() {
           <Route index element={<HomeView />} />
           <Route path='workerHome' element={<WorkerHome />} />
           <Route path="explore" element={<ExploreView />} />
+          <Route path="explore/:id" element={<WorkerProfileView />} />
           <Route path="project/:id" element={<ProjectDetailView />} />
           <Route path="collab" element={<CollaborationHub />} />
           <Route path="map" element={<MapView />} />

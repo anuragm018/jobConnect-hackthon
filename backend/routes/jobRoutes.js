@@ -4,19 +4,15 @@ const JobRequest = require('../models/JobRequest');
 const auth = require('../middleware/authMiddleware');
 
 // @route   POST /api/jobs
-// @desc    Customer creates a new job request / booking
+// @desc    Any User creates a new job request / booking
 router.post('/', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'customer') {
-      return res.status(403).json({ message: 'Only customers can book jobs' });
-    }
-
-    const { workerId, serviceType, description } = req.body;
+    const { workerId, serviceType, description, duration } = req.body;
 
     const newJob = new JobRequest({
-      customerId: req.user.userId,
+      customerId: req.user.userId, // This is just the person who requested it
       workerId,
-      serviceType,
+      serviceType: serviceType || duration || 'General Service',
       description
     });
 
