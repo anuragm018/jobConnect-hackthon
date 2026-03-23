@@ -1,19 +1,31 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MessageSquare, User, Users, Briefcase, DollarSign } from 'lucide-react';
+import { Home, MessageSquare, User, Users, Briefcase, DollarSign, Map, Compass } from 'lucide-react';
 
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navItems = [
+  const role = localStorage.getItem('userRole') || 'customer';
+
+  const workerNavItems = [
     { path: '/app/workerHome', icon: Home, label: 'Job Requests' },
+    { path: '/app/explore', icon: Compass, label: 'Explore Works' },
     { path: '/app/collab', icon: Users, label: 'Collaboration Hub' },
     { path: '/app/messages', icon: MessageSquare, label: 'Messages' },
     { path: '/app/earnings', icon: DollarSign, label: 'Earnings' },
-    { path: '/app/profile', icon: User, label: 'Customer Profile' },
-    { path: '/app/workerProfile', icon: Briefcase, label: 'Worker Profile' }
+    { path: '/app/workerProfile', icon: Briefcase, label: 'My Profile' }
   ];
+
+  const customerNavItems = [
+    { path: '/app', icon: Home, label: 'Discover' },
+    { path: '/app/explore', icon: Compass, label: 'Explore Works' },
+    { path: '/app/map', icon: Map, label: 'Map View' },
+    { path: '/app/messages', icon: MessageSquare, label: 'Messages' },
+    { path: '/app/profile', icon: User, label: 'My Profile' }
+  ];
+
+  const navItems = role === 'worker' ? workerNavItems : customerNavItems;
 
   return (
     <div className="layout-container">

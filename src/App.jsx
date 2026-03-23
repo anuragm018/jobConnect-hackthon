@@ -11,6 +11,8 @@ import MessagesView from './views/MessagesView';
 import ProfileView from './views/ProfileView';
 import WorkerProfileView from './views/WorkerProfileView';
 import EarningsView from './views/EarningsView';
+import ExploreView from './views/ExploreView';
+import ProjectDetailView from './views/ProjectDetailView';
 import './index.css';
 import WorkerHome from './views/WorkerHome';
 
@@ -26,6 +28,8 @@ function App() {
         <Route path="/app" element={<MainLayout />}>
           <Route index element={<HomeView />} />
           <Route path='workerHome' element={<WorkerHome />} />
+          <Route path="explore" element={<ExploreView />} />
+          <Route path="project/:id" element={<ProjectDetailView />} />
           <Route path="collab" element={<CollaborationHub />} />
           <Route path="map" element={<MapView />} />
           <Route path="messages" element={<MessagesView />} />
