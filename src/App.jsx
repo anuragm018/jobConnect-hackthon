@@ -15,6 +15,7 @@ import ExploreView from './views/ExploreView';
 import ProjectDetailView from './views/ProjectDetailView';
 import './index.css';
 import WorkerHome from './views/WorkerHome';
+import CommunityQA from './views/CommunityQA';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="collab" element={<CollaborationHub />} />
           <Route path="map" element={<MapView />} />
           <Route path="messages" element={<MessagesView />} />
+          <Route path="qa" element={<CommunityQA />} />
           <Route path="profile" element={<ProfileView />} />
           <Route path="workerProfile" element={<WorkerProfileView />} />
           <Route path="earnings" element={<EarningsView />} />

@@ -1,12 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 
@@ -27,10 +31,12 @@ app.get('/api', (req, res) => {
 
 // Import Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
-// app.use('/api/jobs', require('./routes/jobRoutes'));
-// app.use('/api/jobs', require('./routes/jobRoutes'));
+app.use('/api/jobs', require('./routes/jobRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/collab', require('./routes/collabRoutes'));
+app.use('/api/forum', require('./routes/forumRoutes'));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

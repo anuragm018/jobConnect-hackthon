@@ -1,50 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WorkerCard from '../components/WorkerCard';
 import MapComponent from '../components/MapComponent';
-import { Map as MapIcon, List, Search, Users } from 'lucide-react';
-
-// Mock Data
-const MOCK_WORKERS = [
-  {
-    id: 1,
-    name: 'Abhinav',
-    title: 'Senior Plumber',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100&h=100',
-    distance: 0.8,
-    hourlyRate: 85,
-    rating: 4.9,
-    reviews: 124,
-    verified: true,
-    mutualFriends: 3,
-    skills: ['Plumbing', 'Pipe fitting', 'Emergency repair']
-  },
-  {
-    id: 2,
-    name: 'Marcus Chen',
-    title: 'Master Electrician',
-    avatar: 'https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?auto=format&fit=crop&q=80&w=100&h=100',
-    distance: 1.2,
-    hourlyRate: 95,
-    rating: 4.8,
-    reviews: 89,
-    verified: true,
-    mutualFriends: 1,
-    skills: ['Wiring', 'Panel Upgrades', 'Smart Home']
-  },
-  {
-    id: 3,
-    name: 'Elena Rodriguez',
-    title: 'Interior Painter',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=100&h=100',
-    distance: 2.5,
-    hourlyRate: 45,
-    rating: 4.7,
-    reviews: 56,
-    verified: false,
-    mutualFriends: 0,
-    skills: ['Interior Painting', 'Cabinet Refinishing', 'Drywall Repair']
-  }
-];
+import { Map as MapIcon, List, Search, Users, Loader2 } from 'lucide-react';
 
 const ACTIVE_EXPERTS = [
   { name: 'Rahul V.', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=100&h=100' },
@@ -59,14 +16,44 @@ const ACTIVE_EXPERTS = [
 export default function HomeView() {
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
+  const [workers, setWorkers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredWorkers = MOCK_WORKERS.filter(worker => {
+  useEffect(() => {
+    // Fetch live workers from our newly built Express MongoDB API
+    fetch('http://localhost:5000/api/users/workers')
+      .then(res => res.json())
+      .then(data => {
+        // Map backend schema to match our WorkerCard props expected format
+        const mappedWorkers = data.map(w => ({
+          id: w._id,
+          name: w.name,
+          title: w.title || w.category || 'Local Professional',
+          avatar: w.avatar || 'https://ui-avatars.com/api/?name=Worker',
+          distance: parseFloat((Math.random() * 5).toFixed(1)), // Mock distance for MVP
+          hourlyRate: w.hourlyRate || 50,
+          rating: w.successRate ? (w.successRate / 20).toFixed(1) : 5.0,
+          reviews: w.reviewsCount || 0,
+          verified: w.verified !== false,
+          mutualFriends: Math.floor(Math.random() * 5),
+          skills: w.skills && w.skills.length > 0 ? w.skills : ['General Services']
+        }));
+        setWorkers(mappedWorkers);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch workers', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const filteredWorkers = workers.filter(worker => {
     if (!searchQuery) return true;
     const lowerQuery = searchQuery.toLowerCase();
     return (
       worker.name.toLowerCase().includes(lowerQuery) ||
       worker.title.toLowerCase().includes(lowerQuery) ||
-      worker.skills.some(skill => skill.toLowerCase().includes(lowerQuery))
+      (worker.skills && worker.skills.some(skill => skill.toLowerCase().includes(lowerQuery)))
     );
   });
 
@@ -93,7 +80,7 @@ export default function HomeView() {
           </div>
         </div>
         
-        {/* Abstract Background Graphic representing the photo */}
+        {/* Abstract Background Graphic */}
         <div style={{ position: 'absolute', right: '-10%', top: '-20%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%)', borderRadius: '50%', zIndex: 1 }}></div>
         <div style={{ position: 'absolute', right: '40px', bottom: '20px', zIndex: 1, opacity: 0.15 }}>
           <Users size={300} color="white" />
@@ -133,7 +120,7 @@ export default function HomeView() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '400px', lineHeight: '1.4' }}>Hand-picked experts based on community ratings and successful connections.</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(99,102,241,0.1)', padding: '10px 20px', borderRadius: '24px', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.9rem', fontWeight: '600', color: 'var(--accent-primary)' }}>
-            <Users size={16} /> 500+ Verified Locally
+            <Users size={16} /> {workers.length} Verified Locally
           </div>
         </div>
 
@@ -168,8 +155,11 @@ export default function HomeView() {
           </div>
         </div>
 
-        {/* The List/Map Rendering from before */}
-        {viewMode === 'list' ? (
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0', color: 'var(--accent-primary)' }}>
+            <Loader2 size={48} className="animate-spin" />
+          </div>
+        ) : viewMode === 'list' ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
             {filteredWorkers.sort((a,b) => a.distance - b.distance).map(worker => (
               <WorkerCard key={worker.id} worker={worker} />

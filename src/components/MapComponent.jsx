@@ -1,108 +1,81 @@
 import React from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
-// A premium dark theme for Google Maps to match our aesthetics
-const darkMapStyle = [
-  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#38414e" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#212a37" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9ca5b3" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#17263c" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#515c6d" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#17263c" }],
-  },
-];
+// Fix for default marker icons in Leaflet with React + Vite
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-export default function MapComponent({ workers, containerStyle = { width: '100%', height: '100%', borderRadius: '12px' } }) {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    // In production, use environment variables: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-    googleMapsApiKey: "" // Providing empty loads the map in development mode (watermarked)
-  });
+let DefaultIcon = L.icon({
+  iconUrl: iconUrl,
+  shadowUrl: shadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+});
 
-  const [activeMarker, setActiveMarker] = React.useState(null);
+L.Marker.prototype.options.icon = DefaultIcon;
 
-  // default center somewhere generic like NY for demo purposes
-  const initCenter = { lat: 40.7128, lng: -74.0060 };
+export default function MapComponent({ workers = [], containerStyle = { width: '100%', height: '100%', borderRadius: '12px' } }) {
+  // Center roughly on Kochi based on our seed data
+  const initCenter = [9.9312, 76.2673]; 
 
-  if (!isLoaded) {
-    return (
-      <div style={{ width: containerStyle.width, height: containerStyle.height, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', borderRadius: containerStyle.borderRadius }}>
-        <span style={{ color: 'var(--text-secondary)' }}>Loading Maps...</span>
-      </div>
-    );
-  }
+  // Adding minimal jitter so multiple markers at same city center don't overlap completely
+  const jitter = () => (Math.random() - 0.5) * 0.08;
 
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={initCenter}
-      zoom={13}
-      options={{
-        styles: darkMapStyle,
-        disableDefaultUI: true,
-        zoomControl: true,
-      }}
-    >
-      {workers.map((worker) => (
-         <Marker
-           key={worker.id}
-           position={{ lat: worker.lat || initCenter.lat + (Math.random() - 0.5) * 0.05, lng: worker.lng || initCenter.lng + (Math.random() - 0.5) * 0.05 }}
-           onClick={() => setActiveMarker(worker.id)}
-           animation={window.google.maps.Animation.DROP}
-         />
-      ))}
-
-      {activeMarker && (
-        <InfoWindow
-          position={{ 
-            lat: workers.find(w => w.id === activeMarker)?.lat || initCenter.lat, 
-            lng: workers.find(w => w.id === activeMarker)?.lng || initCenter.lng 
-          }}
-          onCloseClick={() => setActiveMarker(null)}
-        >
-          <div style={{ color: '#000', padding: '4px', minWidth: '150px' }}>
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem' }}>{workers.find(w => w.id === activeMarker)?.name}</h4>
-            <p style={{ margin: 0, fontSize: '0.85rem' }}>{workers.find(w => w.id === activeMarker)?.title}</p>
-            <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>${workers.find(w => w.id === activeMarker)?.hourlyRate}/hr</p>
-          </div>
-        </InfoWindow>
-      )}
-    </GoogleMap>
+    <div style={{ ...containerStyle, position: 'relative', zIndex: 1, borderRadius: '24px', overflow: 'hidden' }}>
+      <MapContainer 
+        center={initCenter} 
+        zoom={12} 
+        style={{ width: '100%', height: '100%', zIndex: 1 }}
+        scrollWheelZoom={false}
+      >
+        {/* Dark theme tiles for a premium look matching our glassmorphism UI */}
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        />
+        
+        {workers.map((worker) => {
+          // If real lat/lng isn't in seed data, fallback to generic center with jitter
+          const lat = worker.lat || initCenter[0] + jitter();
+          const lng = worker.lng || initCenter[1] + jitter();
+          
+          return (
+            <Marker key={worker.id || worker._id} position={[lat, lng]}>
+              <Popup>
+                <div style={{ padding: '2px', minWidth: '130px', textAlign: 'center' }}>
+                  <img src={worker.avatar || worker.img} alt={worker.name} style={{ width: '48px', height: '48px', borderRadius: '50%', marginBottom: '8px', objectFit: 'cover' }} />
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1.05rem', color: '#1e40af' }}>{worker.name}</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#4b5563', fontWeight: '500' }}>{worker.title || worker.role}</p>
+                  <p style={{ margin: '8px 0 0 0', fontWeight: '800', color: '#16a34a', fontSize: '1rem' }}>₹{worker.hourlyRate || worker.price || '450'}/hr</p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MapContainer>
+      
+      {/* Additional global CSS for popup to override Leaflet default white borders to match glass UI */}
+      <style>{`
+        .leaflet-popup-content-wrapper {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 16px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          border: 1px solid rgba(0,0,0,0.05);
+        }
+        .leaflet-popup-tip {
+          background: rgba(255, 255, 255, 0.95);
+        }
+        .leaflet-container {
+          background: #1e1e1e; /* Match theme if tiles load slow */
+        }
+      `}</style>
+    </div>
   );
 }

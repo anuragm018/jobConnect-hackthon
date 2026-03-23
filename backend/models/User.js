@@ -19,6 +19,7 @@ const UserSchema = new Schema({
   successRate: { type: Number, default: 100 },
   reviewsCount: { type: Number, default: 0 },
   verified: { type: Boolean, default: true },
+  reputationScore: { type: Number, default: 0 },
 
   createdAt: { type: Date, default: Date.now }
 });

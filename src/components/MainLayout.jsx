@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MessageSquare, User, Users, Briefcase, DollarSign, Map, Compass } from 'lucide-react';
+import { Home, MessageSquare, User, Users, Briefcase, DollarSign, Map, Compass, HelpCircle, LogOut } from 'lucide-react';
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -8,9 +8,17 @@ export default function MainLayout() {
 
   const role = localStorage.getItem('userRole') || 'customer';
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userProfile');
+    navigate('/');
+  };
+
   const workerNavItems = [
     { path: '/app/workerHome', icon: Home, label: 'Job Requests' },
     { path: '/app/explore', icon: Compass, label: 'Explore Works' },
+    { path: '/app/qa', icon: HelpCircle, label: 'Community Help' },
     { path: '/app/collab', icon: Users, label: 'Collaboration Hub' },
     { path: '/app/messages', icon: MessageSquare, label: 'Messages' },
     { path: '/app/earnings', icon: DollarSign, label: 'Earnings' },
@@ -20,6 +28,7 @@ export default function MainLayout() {
   const customerNavItems = [
     { path: '/app', icon: Home, label: 'Discover' },
     { path: '/app/explore', icon: Compass, label: 'Explore Works' },
+    { path: '/app/qa', icon: HelpCircle, label: 'Community Help' },
     { path: '/app/map', icon: Map, label: 'Map View' },
     { path: '/app/messages', icon: MessageSquare, label: 'Messages' },
     { path: '/app/profile', icon: User, label: 'My Profile' }
@@ -49,15 +58,22 @@ export default function MainLayout() {
               </div>
             );
           })}
+          <div style={{ flex: 1 }}></div>
+          <div className="nav-item" style={{ color: '#ef4444', marginTop: 'auto', opacity: 0.9 }} onClick={handleLogout}>
+            <LogOut size={24} className="nav-icon" />
+            <span className="nav-label" style={{ fontWeight: '600' }}>Log Out</span>
+          </div>
         </nav>
       </aside>
 
       {/* Main Content Area */}
       <main className="main-content">
         {/* Dynamic Mobile Header */}
-        <header className="mobile-header glass-panel">
-          <h2 className="heading-gradient">JobConnect</h2>
-          {/* Optional actions like notifications could go here */}
+        <header className="mobile-header glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px' }}>
+          <h2 className="heading-gradient" style={{ margin: 0 }}>JobConnect</h2>
+          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', opacity: 0.9 }}>
+            <LogOut size={24} />
+          </button>
         </header>
 
         <div className="content-scroll">
