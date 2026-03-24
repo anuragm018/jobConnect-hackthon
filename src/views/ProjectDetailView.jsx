@@ -173,7 +173,11 @@ export default function ProjectDetailView() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <button style={{ background: 'var(--accent-primary)', color: 'white', border: 'none', padding: '16px', borderRadius: '40px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 8px 20px rgba(45,90,240,0.3)', ':hover': { background: 'var(--accent-hover)' } }}>
+              <button 
+                onClick={() => navigate(`/app/explore/${project.workerId?._id || project.workerId}`)}
+                className="btn-primary" 
+                style={{ border: 'none', padding: '16px', borderRadius: '40px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 8px 20px rgba(45,90,240,0.3)' }}
+              >
                 Book {workerName.split(' ')[0]} <ArrowRight size={20} />
               </button>
               <button className="btn-outline" style={{ background: 'rgba(45,90,240,0.05)', color: 'var(--accent-primary)', border: 'none', padding: '16px', borderRadius: '40px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', transition: 'background 0.2s' }}>

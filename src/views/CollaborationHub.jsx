@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Users, Share2, MoreVertical, Bell, Loader2, Send } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CollaborationHub() {
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [collaborators, setCollaborators] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -187,7 +189,7 @@ export default function CollaborationHub() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '4px' }}>
-                      <button className="btn-primary" style={{ flex: 1, padding: '12px 0', background: color, border: 'none', fontWeight: '600' }}>
+                      <button onClick={() => navigate('/app/messages', { state: { preselectWorker: req.authorId } })} className="btn-primary" style={{ flex: 1, padding: '12px 0', background: color, border: 'none', fontWeight: '600' }}>
                         {getActionForType(req.type)}
                       </button>
                       <button className="glass-panel" style={{ padding: '12px', display: 'flex', border: 'none', background: 'rgba(255,255,255,0.03)', cursor: 'pointer' }}>
@@ -221,7 +223,7 @@ export default function CollaborationHub() {
             {collaborators.length === 0 ? <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', textAlign: 'center' }}>No professionals online</p> : null}
             {collaborators.map((c, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }} onClick={() => navigate(`/app/explore/${c._id}`)}>
                   <img src={c.avatar || `https://ui-avatars.com/api/?name=${c.name}`} alt={c.name} style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />
                   <div>
                     <div style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '2px' }}>{c.name}</div>
@@ -233,7 +235,7 @@ export default function CollaborationHub() {
             ))}
           </div>
           
-          <button className="btn-outline" style={{ width: '100%', marginTop: '24px', padding: '12px 0', fontSize: '0.9rem', border: 'none', background: 'rgba(255,255,255,0.02)' }}>
+          <button onClick={() => navigate('/app/explore')} className="btn-outline" style={{ width: '100%', marginTop: '24px', padding: '12px 0', fontSize: '0.9rem', border: 'none', background: 'rgba(255,255,255,0.02)' }}>
             View Full Directory
           </button>
         </div>
@@ -255,7 +257,7 @@ export default function CollaborationHub() {
             <span style={{ fontSize: '0.85rem', fontWeight: '500', opacity: 0.9 }}>Trusted Network</span>
           </div>
 
-          <button style={{ width: '100%', padding: '12px 0', background: 'white', color: 'var(--accent-primary)', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', transition: 'transform 0.2s', ':active': { transform: 'scale(0.98)' } }}>
+          <button onClick={() => navigate('/app/explore')} style={{ width: '100%', padding: '12px 0', background: 'white', color: 'var(--accent-primary)', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', transition: 'transform 0.2s' }}>
             Build Your Crew
           </button>
         </div>

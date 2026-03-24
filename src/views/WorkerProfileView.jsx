@@ -228,7 +228,7 @@ export default function WorkerProfileView() {
         </h2>
         
         {/* Worker Edit Mode */}
-        {currentUser.id === (worker._id || worker.id) && currentUser.role === 'worker' && (
+        {(!id || id === currentUser.id) && currentUser.role === 'worker' && (
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '24px', borderRadius: '16px', marginBottom: '24px', border: '1px dashed var(--border-glass)' }}>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}>Mark exact dates you are busy or booked to avoid conflict:</h3>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
@@ -261,7 +261,7 @@ export default function WorkerProfileView() {
               <div key={idx} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '12px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ fontWeight: '600' }}>{new Date(slot.date).toLocaleDateString()}</div>
                 <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>• {slot.time}</div>
-                {currentUser.id === (worker._id || worker.id) && currentUser.role === 'worker' && (
+                {(!id || id === currentUser.id) && currentUser.role === 'worker' && (
                   <button onClick={() => handleRemoveBusySlot(idx)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', marginLeft: '8px' }}>
                     <X size={16} />
                   </button>

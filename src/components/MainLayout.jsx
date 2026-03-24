@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MessageSquare, User, Users, Briefcase, DollarSign, Map, Compass, HelpCircle, LogOut } from 'lucide-react';
+import { Home, MessageSquare, User, Users, Briefcase, DollarSign, Map, Compass, HelpCircle, LogOut, CreditCard } from 'lucide-react';
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ export default function MainLayout() {
     { path: '/app/qa', icon: HelpCircle, label: 'Community Help' },
     { path: '/app/map', icon: Map, label: 'Map View' },
     { path: '/app/messages', icon: MessageSquare, label: 'Messages' },
+    { path: '/app/payments', icon: CreditCard, label: 'My Bookings' },
     { path: '/app/profile', icon: User, label: 'My Profile' }
   ];
 

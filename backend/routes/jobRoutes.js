@@ -28,10 +28,12 @@ router.post('/', auth, async (req, res) => {
 // @desc    Get all jobs for logged-in user (as customer or worker)
 router.get('/', auth, async (req, res) => {
   try {
-    // If worker, find jobs where they are workerId. If customer, find where customerId.
-    const query = req.user.role === 'worker' 
-      ? { workerId: req.user.userId }
-      : { customerId: req.user.userId };
+    const asCustomer = req.query.asCustomer === 'true';
+
+    // Build adaptive query for sub-contracting support
+    const query = (asCustomer || req.user.role === 'customer')
+      ? { customerId: req.user.userId }
+      : { workerId: req.user.userId };
 
     const jobs = await JobRequest.find(query)
       .populate('customerId', 'name avatar')

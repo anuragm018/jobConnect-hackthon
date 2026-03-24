@@ -14,7 +14,7 @@ export default function RoleSelection() {
         </p>
 
         <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-          {/* Customer / Hiring Option */}
+          {/* User Option */}
           <div 
             className="glass-panel" 
             style={{ padding: '32px 24px', cursor: 'pointer', transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
@@ -25,12 +25,12 @@ export default function RoleSelection() {
             <div style={{ background: 'rgba(99,102,241,0.1)', padding: '16px', borderRadius: '50%', marginBottom: '20px' }}>
               <UserSearch size={32} color="var(--accent-primary)" />
             </div>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>I want to Hire</h2>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>I am a User</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '24px' }}>
               Find trusted local professionals, recommended by your friends.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: '600', marginTop: 'auto' }}>
-              Customer Profile <ArrowRight size={16} />
+              User Profile <ArrowRight size={16} />
             </div>
           </div>
 
